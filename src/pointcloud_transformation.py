@@ -14,7 +14,7 @@ class PointcloudTransformation():
                         self.matrix_values = self.read(f'{self.file_directory}/matrices.json')
                 else:
                         self.matrix_values = self.read(json)
-                # self.transformation_matrices = self.create_matrices(self.matrix_values)
+                        
                 self.ply_data_transform(folder_location)
 
 
@@ -22,6 +22,26 @@ class PointcloudTransformation():
                 with open(file, "r") as read_file:
                     location = json.load(read_file)
                 return location
+
+
+        def ply_data_transform(self, folder_location):
+                
+                for file in glob.glob(f'{folder_location}/*.ply'):
+                        # naming format: object_posenumber_date.ply
+                        pose_number = int(file.split('/')[-1].split('_')[1][4:])
+
+                        pcd = o3d.io.read_point_cloud(file)
+
+                        transformation_matrix = np.eye(4)
+                        transformation_matrix[:3, :3] = pcd.get_rotation_matrix_from_xyz((self.matrix_values[pose_number][0], 0, 0))
+                        transformation_matrix[0, 3] = self.matrix_values[pose_number][1]
+                        transformation_matrix[1, 3] = self.matrix_values[pose_number][2]
+                        transformation_matrix[2, 3] = self.matrix_values[pose_number][3]
+
+                        pcd.transform(transformation_matrix)
+                        o3d.visualization.draw_geometries([pcd])
+
+                        pcd.export_to_ply('combined_point_cloud.ply')
 
 
         # def create_matrices(self, matrix_values):
@@ -46,27 +66,6 @@ class PointcloudTransformation():
         #         return points_matrix
 
 
-        def ply_data_transform(self, folder_location):
-                
-                for file in glob.glob(f'{folder_location}/*.ply'):
-                        # naming format: object_posenumber_date.ply
-                        pose_number = int(file.split('/')[-1].split('_')[1][4:])
-
-                        pcd = o3d.io.read_point_cloud(file)
-
-                        transformation_matrix = np.eye(4)
-                        transformation_matrix[:3, :3] = pcd.get_rotation_matrix_from_xyz((self.matrix_values[pose_number][0], 0, 0))
-                        transformation_matrix[0, 3] = self.matrix_values[pose_number][1]
-                        transformation_matrix[1, 3] = self.matrix_values[pose_number][2]
-                        transformation_matrix[2, 3] = self.matrix_values[pose_number][3]
-
-                        pcd.transform(transformation_matrix)
-                        o3d.visualization.draw_geometries([pcd])
-
-                        pcd.export_to_ply('combined_point_cloud.ply')
-
-
-
 
 # class pointcloud(object):
 
@@ -80,4 +79,3 @@ if __name__ == "__main__":
 
         point_cloud.ply_data_transform('/home/cleveland/3d_scanner_realsense/src/Object1')
 
-        # matrix_info = transformations("/home/cleveland/python_training/3d_scanner/matrices.json")
