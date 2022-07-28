@@ -15,7 +15,7 @@ class PointcloudTransformation():
                 else:
                         self.matrix_values = self.read(json)
                 # self.transformation_matrices = self.create_matrices(self.matrix_values)
-                self.main(folder_location)
+                self.ply_data_transform(folder_location)
 
 
         def read(self, file):
@@ -63,11 +63,8 @@ class PointcloudTransformation():
                         pcd.transform(transformation_matrix)
                         o3d.visualization.draw_geometries([pcd])
 
-                pcd.export_to_ply('combined_point_cloud.ply')
+                        pcd.export_to_ply('combined_point_cloud.ply')
 
-
-        def main(self, folder_location):
-                self.ply_data_transform(folder_location)
 
 
 
@@ -79,6 +76,8 @@ class PointcloudTransformation():
 
 
 if __name__ == "__main__":
-        PointcloudTransformation.main()
+        point_cloud = PointcloudTransformation('/home/cleveland/3d_scanner_realsense/src/Object1')
+
+        point_cloud.ply_data_transform('/home/cleveland/3d_scanner_realsense/src/Object1')
 
         # matrix_info = transformations("/home/cleveland/python_training/3d_scanner/matrices.json")
